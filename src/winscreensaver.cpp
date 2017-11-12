@@ -18,13 +18,18 @@ int RunScreensaver(SDL_Window* win, SDL_Renderer* ren, void* testHwnd, bool clos
 	int i = 0;
 	SDL_Log("Detected window size: %d %d", w, h);
 
+	Uint32 nextStateMax = 120'000;
+	Uint32 nextStateTime = nextStateMax;
+
 	int scaling = 4;
-	Scrsvr_State state(ren, w, h, scaling);
+	Scrsvr_State *state = new Scrsvr_State(ren, w, h, scaling);
 
 	Uint32 lastTime = SDL_GetTicks();
 
 	bool keepRunning = true;
 	while (keepRunning) {
+		Uint32 frameStart = SDL_GetTicks();
+
 #if _WINDOWS
 		if (testHwnd != nullptr) {
 			// Hack to detect switching away from the preview in the screensaver control panel:
@@ -83,15 +88,43 @@ int RunScreensaver(SDL_Window* win, SDL_Renderer* ren, void* testHwnd, bool clos
 		}
 		lastTime = currentTime;
 
+		// Check if a new state is needed
+		if (nextStateTime <= elapsedTime) {
+			delete state;
+			state = new Scrsvr_State(ren, w, h, scaling);
+			nextStateTime = nextStateMax;
+		}
+		else {
+			nextStateTime -= elapsedTime;
+		}
+
 		// Update
-		state.Update(elapsedTime);
+		state->Update(elapsedTime);
 
 		// Draw
 		SDL_SetRenderTarget(ren, NULL);
-		state.Draw(ren);
+		state->Draw(ren);
 		SDL_RenderPresent(ren);
-		SDL_Delay(1);
+
+		Uint32 frameEnd = SDL_GetTicks();
+		if (frameEnd < frameStart) {
+			SDL_Log("Rollover frame time");
+		}
+		else {
+			Uint32 targetFrameTime = 16;
+			Uint32 elapsedFrameTime = frameEnd - frameStart;
+			Uint32 waitTime;
+			if (elapsedFrameTime < targetFrameTime) {
+				waitTime = targetFrameTime - elapsedFrameTime;
+			}
+			else {
+				waitTime = 1;
+			}
+			SDL_Delay(waitTime);
+		}
 	}
+
+	delete state;
 
 	return 0;
 }
