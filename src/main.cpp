@@ -1,16 +1,33 @@
 #include <iostream>
 #include "SDL.h"
+#include "SDL_syswm.h"
 #include "winscreensaver.h"
 
-int RunScreensaver(SDL_Window* win, SDL_Renderer* ren) {
+int RunScreensaver(SDL_Window* win, SDL_Renderer* ren, void* testHwnd) {
+#if _WINDOWS
+	SDL_assert(sizeof(void*) == sizeof(HWND));
+#endif
+
 	int w, h;
 	SDL_GetWindowSize(win, &w, &h);
 	int i = 0;
+	SDL_Log("Detected window size: %d %d", w, h);
 
 	SDL_Texture *tex = SDL_CreateTexture(ren, SDL_PIXELFORMAT_RGB888, SDL_TextureAccess::SDL_TEXTUREACCESS_TARGET, w, h);
 
 	bool keepRunning = true;
 	while (keepRunning) {
+#if _WINDOWS
+		if (testHwnd != nullptr) {
+			// Hack to detect switching away from the preview in the screensaver control panel:
+			// https://stackoverflow.com/questions/37569309/how-to-finish-sdl-screensaver-app-after-preview-window-closes
+			if (!IsWindow((HWND)testHwnd)) {
+				SDL_Log("Closing because testHwnd is not a window");
+				keepRunning = false;
+			}
+		}
+#endif
+
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{
@@ -22,7 +39,17 @@ int RunScreensaver(SDL_Window* win, SDL_Renderer* ren) {
 			case SDL_MOUSEBUTTONDOWN:
 				keepRunning = false;
 				break;
+			case SDL_WINDOWEVENT_CLOSE:
+				keepRunning = false;
+				break;
+#if _WINDOWS
+			case SDL_SYSWMEVENT:
+				if (event.syswm.msg->msg.win.msg == 0xF140 /*SCREENSAVE*/ || event.syswm.msg->msg.win.msg == 0xF060 /* SC_CLOSE */)
+					keepRunning = false;
+				break;
+#endif
 			}
+			SDL_Log("Event: %u", event.type);
 		}
 
 		SDL_SetRenderTarget(ren, tex);
@@ -30,14 +57,18 @@ int RunScreensaver(SDL_Window* win, SDL_Renderer* ren) {
 		SDL_RenderDrawLine(ren, i, 0, i, i);
 
 		SDL_SetRenderTarget(ren, NULL);
-		//SDL_SetRenderDrawColor(ren, 0, 0, 0, 0);
-		//SDL_RenderClear(ren);
 
 		SDL_RenderCopy(ren, tex, NULL, NULL);
 		
 		SDL_RenderPresent(ren);
 		SDL_Delay(1);
 		i++;
+		if (i >= w) {
+			SDL_SetRenderTarget(ren, tex);
+			SDL_SetRenderDrawColor(ren, 0, 0, 0, 0);
+			SDL_RenderClear(ren);
+			i = 0;
+		}
 	}
 
 	return 0;
@@ -49,7 +80,11 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+	// Receive window manager events so we can close from preview
+	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+
 	SDL_Window *win = nullptr;
+	void *winptr = nullptr;
 	if (argc > 1) {
 		for (int i = 1; i < argc; i++) {
 			SDL_Log("Got param: %s", argv[i]);
@@ -85,8 +120,13 @@ int main(int argc, char *argv[]) {
 				return 0;
 			}
 			else if (argv[i][0] == '/' && (argv[i][1] == 'p' || argv[i][1] == 'P')) {
-				int* winptr;
-				sprintf(argv[i] + 3, "%d", &winptr);
+				char *chptr = argv[i] + 2;
+				if (*chptr == '\0') {
+					i++;
+					chptr = argv[i];
+				}
+				winptr = (void*)atoll(chptr);
+				SDL_Log("Embedding in window: %u", winptr);
 				win = SDL_CreateWindowFrom(winptr);
 			}
 		}
@@ -107,7 +147,7 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-	int result = RunScreensaver(win, ren);
+	int result = RunScreensaver(win, ren, winptr);
 
     SDL_Quit();
     return result;
