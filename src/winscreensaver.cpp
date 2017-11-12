@@ -59,12 +59,15 @@ int RunScreensaver(SDL_Window* win, SDL_Renderer* ren, void* testHwnd, bool clos
 				break;
 #if _WINDOWS
 			case SDL_SYSWMEVENT:
-				if (event.syswm.msg->msg.win.msg == 0xF140 /*SCREENSAVE*/ || event.syswm.msg->msg.win.msg == 0xF060 /* SC_CLOSE */)
-					keepRunning = false;
+				if (event.syswm.msg->msg.win.msg == 0x0112 /* WM_SYSCOMMAND */) {
+					if (event.syswm.msg->msg.win.wParam == 0xF140 /* SC_SCREENSAVE */ || event.syswm.msg->msg.win.wParam == 0xF060 /* SC_CLOSE */) {
+						keepRunning = false;
+					}
+				}
 				break;
 #endif
 			}
-			SDL_Log("Event: %u", event.type);
+			SDL_Log("Event: 0x%x", event.type);
 		}
 
 		// Calculate elapsed time
@@ -98,8 +101,10 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
+#if _WINDOWS
 	// Receive window manager events so we can close from preview
 	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+#endif
 
 	SDL_Window *win = nullptr;
 	void *winptr = nullptr;

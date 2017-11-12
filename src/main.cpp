@@ -1,4 +1,4 @@
-#include <cmath>
+#include <algorithm>
 #include <chrono>
 #include "SDL.h"
 #include "main.h"
@@ -39,6 +39,9 @@ Scrsvr_State::Scrsvr_State(SDL_Renderer *ren, int w, int h, int scaling)
 		buildings.push_back(building);
 		offsetX += bw - (rand() % (bw / 2));
 	}
+
+	// TODO: uses unknown random state
+	std::random_shuffle(buildings.begin(), buildings.end());
 }
 
 Scrsvr_State::~Scrsvr_State() {

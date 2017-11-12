@@ -1,8 +1,18 @@
 #include "building.h"
 
-Building::Building(std::mt19937& rand, int ox, int oy, int w, int h, int ww, int wh, int wo)
+Building::Building(const std::mt19937& rand, int ox, int oy, int w, int h, int ww, int wh, int wo)
 	: rand(rand), offsetX(ox), offsetY(oy), w(w), h(h), windowWidth(ww), windowHeight(wh), windowOffset(wo) {
+	windowCount = 0;
+	for (int j = 0; j < h; j += windowOffset) {
+		for (int k = 0; k < w; k += windowWidth * 2) {
+			// TODO do this in constant time
+			windowCount++;
+		}
+	}
 
+	for (int i = 0; i < windowCount; i++) {
+		windowState.push_back(false);
+	}
 }
 
 SDL_Rect Building::ToRect() const {
@@ -15,7 +25,9 @@ SDL_Rect Building::ToRect() const {
 }
 
 void Building::Update(Uint32 elapsedMs) {
-
+	for (int i = 0; i < windowCount; i++) {
+		windowState[i] = rand() % 2 == 0;
+	}
 }
 
 void Building::Draw(SDL_Renderer *ren) const {
@@ -31,9 +43,11 @@ void Building::Draw(SDL_Renderer *ren) const {
 
 	// Draw window outlines
 	SDL_SetRenderDrawColor(ren, 0, 255, 255, 0);
+	int windowIdx = 0;
 	for (int j = 0; j < h; j += windowOffset) {
 		for (int k = 0; k < w; k += windowWidth * 2) {
-			if (rand() % 2 == 0) {
+			windowIdx++;
+			if (windowState[windowIdx - 1]) {
 				continue;
 			}
 
