@@ -1,17 +1,39 @@
 #include "building.h"
 
-Building::Building(const std::mt19937& rand, int ox, int oy, int w, int h, int ww, int wh, int wo)
-	: rand(rand), offsetX(ox), offsetY(oy), w(w), h(h), windowWidth(ww), windowHeight(wh), windowOffset(wo) {
-	windowCount = 0;
-	for (int j = 0; j < h; j += windowOffset) {
-		for (int k = 0; k < w; k += windowWidth * 2) {
-			// TODO do this in constant time
-			windowCount++;
-		}
+Window::Window(std::mt19937 rand, int x, int y, int w, int h) : rand(rand), x(x), y(y), w(w), h(h) {
+	for (int i = 0; i < w * h; i++) {
+		state.push_back(0);
 	}
+}
 
-	for (int i = 0; i < windowCount; i++) {
-		windowState.push_back(false);
+void Window::Update(Uint32 elapsedMs) {
+
+}
+
+void Window::Draw(SDL_Renderer *ren) const {
+	SDL_SetRenderDrawColor(ren, 0, 255, 255, 0);
+
+	SDL_Rect rect;
+	rect.h = h;
+	rect.w = w + 1;
+	rect.x = x;
+	rect.y = y;
+	SDL_RenderDrawRect(ren, &rect);
+}
+
+Building::Building(const std::mt19937& rand, int ox, int oy, int w, int h, int ww, int wh, int wo)
+	: rand(rand), offsetX(ox), offsetY(oy), w(w), h(h) {
+	windowCount = 0;
+	for (int j = 0; j < h; j += wo) {
+		for (int k = 0; k < w; k += ww * 2) {
+			windowCount++;
+
+			int x = ox + k;
+			int y = oy + j;
+
+			Window w(rand, x, y, ww, wh);
+			windows.push_back(w);
+		}
 	}
 }
 
@@ -25,8 +47,8 @@ SDL_Rect Building::ToRect() const {
 }
 
 void Building::Update(Uint32 elapsedMs) {
-	for (int i = 0; i < windowCount; i++) {
-		windowState[i] = rand() % 2 == 0;
+	for (Window& window : windows) {
+		window.Update(elapsedMs);
 	}
 }
 
@@ -41,22 +63,8 @@ void Building::Draw(SDL_Renderer *ren) const {
 	//SDL_SetRenderDrawColor(ren, 0, 255, 0, 0);
 	//SDL_RenderDrawRect(ren, &outline);
 
-	// Draw window outlines
-	SDL_SetRenderDrawColor(ren, 0, 255, 255, 0);
-	int windowIdx = 0;
-	for (int j = 0; j < h; j += windowOffset) {
-		for (int k = 0; k < w; k += windowWidth * 2) {
-			windowIdx++;
-			if (windowState[windowIdx - 1]) {
-				continue;
-			}
-
-			SDL_Rect rect;
-			rect.h = windowHeight;
-			rect.w = windowWidth + 1;
-			rect.x = offsetX + k;
-			rect.y = offsetY + j;
-			SDL_RenderDrawRect(ren, &rect);
-		}
+	// Draw windows
+	for (const Window& window : windows) {
+		window.Draw(ren);
 	}
 }

@@ -3,6 +3,23 @@
 #include <random>
 #include "SDL.h"
 
+class Window {
+public:
+	std::mt19937 rand;
+
+	int x;
+	int y;
+	int w;
+	int h;
+	std::vector<int> state;
+
+public:
+	Window(std::mt19937 rand, int x, int y, int w, int h);
+
+	void Update(Uint32 elapsedMs);
+	void Draw(SDL_Renderer *ren) const;
+};
+
 class Building {
 public: // TODO
 	int offsetX;
@@ -12,10 +29,7 @@ public: // TODO
 	int w, h;
 
 	int windowCount;
-	int windowWidth;
-	int windowHeight;
-	int windowOffset;
-	std::vector<bool> windowState;
+	std::vector<Window> windows;
 
 public:
 	Building(const std::mt19937& rand, int offsetX, int offsetY, int w, int h, int windowWidth, int windowHeight, int windowOffset);
