@@ -26,8 +26,8 @@ void Building::Draw(SDL_Renderer *ren) const {
 	SDL_RenderFillRect(ren, &outline);
 
 	// Draw building outlines
-	SDL_SetRenderDrawColor(ren, 0, 255, 0, 0);
-	SDL_RenderDrawRect(ren, &outline);
+	//SDL_SetRenderDrawColor(ren, 0, 255, 0, 0);
+	//SDL_RenderDrawRect(ren, &outline);
 
 	// Draw window outlines
 	SDL_SetRenderDrawColor(ren, 0, 255, 255, 0);

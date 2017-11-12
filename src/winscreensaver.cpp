@@ -7,107 +7,19 @@
 #include "winscreensaver.h"
 #include "main.h"
 
-int main(int argc, char *argv[]) {
-	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-		std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
-		return 1;
-	}
-
-	// Receive window manager events so we can close from preview
-	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
-
-	SDL_Window *win = nullptr;
-	void *winptr = nullptr;
-	if (argc > 1) {
-		for (int i = 1; i < argc; i++) {
-			SDL_Log("Got param: %s", argv[i]);
-			if (strcmpi(argv[i], "/debug") == 0) {
-				// Create an application window with the following settings:
-				win = SDL_CreateWindow(
-					"An SDL2 window",                  // window title
-					SDL_WINDOWPOS_UNDEFINED,           // initial x position
-					SDL_WINDOWPOS_UNDEFINED,           // initial y position
-					1024,                              // width, in pixels
-					768,                               // height, in pixels
-					0                                  // flags - see below
-				);
-			}
-			if (strcmpi(argv[i], "/s") == 0) {
-				// Create an application window with the following settings:
-				win = SDL_CreateWindow(
-					"An SDL2 window",                  // window title
-					SDL_WINDOWPOS_UNDEFINED,           // initial x position
-					SDL_WINDOWPOS_UNDEFINED,           // initial y position
-					640,                               // width, in pixels
-					480,                               // height, in pixels
-					SDL_WINDOW_FULLSCREEN_DESKTOP      // flags - see below
-				);
-			}
-			else if (argv[i][0] == '/' && (argv[i][1] == 'c' || argv[i][1] == 'C')) {
-				const SDL_MessageBoxButtonData buttons[] = {
-					{ SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 0, "OK" }
-				};
-				const SDL_MessageBoxData messageboxdata = {
-					SDL_MESSAGEBOX_INFORMATION, /* .flags */
-					NULL, /* .window */
-					"Configure", /* .title */
-					"There is nothing you can configure.", /* .message */
-					SDL_arraysize(buttons), /* .numbuttons */
-					buttons, /* .buttons */
-					NULL /* .colorScheme */
-				};
-				int buttonid;
-				if (SDL_ShowMessageBox(&messageboxdata, &buttonid) < 0) {
-					SDL_Log("error displaying message box");
-					return 1;
-				}
-				return 0;
-			}
-			else if (argv[i][0] == '/' && (argv[i][1] == 'p' || argv[i][1] == 'P')) {
-				char *chptr = argv[i] + 2;
-				if (*chptr == '\0') {
-					i++;
-					chptr = argv[i];
-				}
-				winptr = (void*)atoll(chptr);
-				SDL_Log("Embedding in window: %u", winptr);
-				win = SDL_CreateWindowFrom(winptr);
-			}
-		}
-	}
-
-	if (win == nullptr) {
-		std::cout << "Incorrect option or SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
-		SDL_Quit();
-		system("pause");
-		return 1;
-	}
-
-	SDL_Renderer *ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	if (ren == nullptr) {
-		SDL_DestroyWindow(win);
-		std::cout << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
-		SDL_Quit();
-		return 1;
-	}
-
-	int result = RunScreensaver(win, ren, winptr);
-
-	SDL_Quit();
-	return result;
-}
-
-int RunScreensaver(SDL_Window* win, SDL_Renderer* ren, void* testHwnd) {
+int RunScreensaver(SDL_Window* win, SDL_Renderer* ren, void* testHwnd, bool closeOnMotion) {
 #if _WINDOWS
 	SDL_assert(sizeof(void*) == sizeof(HWND));
 #endif
 
+	bool mouseMotionSeen = false;
 	int w, h;
 	SDL_GetWindowSize(win, &w, &h);
 	int i = 0;
 	SDL_Log("Detected window size: %d %d", w, h);
 
-	Scrsvr_State state(ren, w, h, 4);
+	int scaling = 4;
+	Scrsvr_State state(ren, w, h, scaling);
 
 	Uint32 lastTime = SDL_GetTicks();
 
@@ -135,6 +47,12 @@ int RunScreensaver(SDL_Window* win, SDL_Renderer* ren, void* testHwnd) {
 				break;
 			case SDL_MOUSEBUTTONDOWN:
 				keepRunning = false;
+				break;
+			case SDL_MOUSEMOTION:
+				if (mouseMotionSeen && closeOnMotion) {
+					keepRunning = false;
+				}
+				mouseMotionSeen = true;
 				break;
 			case SDL_WINDOWEVENT_CLOSE:
 				keepRunning = false;
@@ -172,4 +90,101 @@ int RunScreensaver(SDL_Window* win, SDL_Renderer* ren, void* testHwnd) {
 	}
 
 	return 0;
+}
+
+int main(int argc, char *argv[]) {
+	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+		std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
+		return 1;
+	}
+
+	// Receive window manager events so we can close from preview
+	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+
+	SDL_Window *win = nullptr;
+	void *winptr = nullptr;
+	bool closeOnMotion = false;
+	bool createdWindow = false;
+	if (argc > 1) {
+		for (int i = 1; i < argc; i++) {
+			SDL_Log("Got param: %s", argv[i]);
+			if (strcmpi(argv[i], "/debug") == 0) {
+				// Create an application window with the following settings:
+				win = SDL_CreateWindow(
+					"An SDL2 window",                  // window title
+					SDL_WINDOWPOS_UNDEFINED,           // initial x position
+					SDL_WINDOWPOS_UNDEFINED,           // initial y position
+					1024,                              // width, in pixels
+					768,                               // height, in pixels
+					0                                  // flags - see below
+				);
+				createdWindow = true;
+			}
+			else if (argv[i][0] == '/' && (argv[i][1] == 'c' || argv[i][1] == 'C')) {
+				const SDL_MessageBoxButtonData buttons[] = {
+					{ SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 0, "OK" }
+				};
+				const SDL_MessageBoxData messageboxdata = {
+					SDL_MESSAGEBOX_INFORMATION, /* .flags */
+					NULL, /* .window */
+					"Configure", /* .title */
+					"There is nothing you can configure.", /* .message */
+					SDL_arraysize(buttons), /* .numbuttons */
+					buttons, /* .buttons */
+					NULL /* .colorScheme */
+				};
+				int buttonid;
+				if (SDL_ShowMessageBox(&messageboxdata, &buttonid) < 0) {
+					SDL_Log("error displaying message box");
+					return 1;
+				}
+				return 0;
+			}
+			else if (argv[i][0] == '/' && (argv[i][1] == 'p' || argv[i][1] == 'P')) {
+				char *chptr = argv[i] + 2;
+				if (*chptr == '\0') {
+					i++;
+					chptr = argv[i];
+				}
+				winptr = (void*)atoll(chptr);
+				SDL_Log("Embedding in window: %u", winptr);
+				win = SDL_CreateWindowFrom(winptr);
+				createdWindow = true;
+			}
+		}
+	}
+
+	if (!createdWindow) {
+		win = SDL_CreateWindow(
+			"An SDL2 window",                  // window title
+			SDL_WINDOWPOS_UNDEFINED,           // initial x position
+			SDL_WINDOWPOS_UNDEFINED,           // initial y position
+			640,                               // width, in pixels
+			480,                               // height, in pixels
+			SDL_WINDOW_FULLSCREEN_DESKTOP      // flags - see below
+		);
+		// Running as a real screensaver
+		closeOnMotion = true;
+		SDL_ShowCursor(0);
+	}
+
+	if (win == nullptr) {
+		std::cout << "Incorrect option or SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
+		SDL_Quit();
+		system("pause");
+		return 1;
+	}
+
+	SDL_Renderer *ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	if (ren == nullptr) {
+		SDL_DestroyWindow(win);
+		std::cout << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
+		SDL_Quit();
+		return 1;
+	}
+
+	int result = RunScreensaver(win, ren, winptr, closeOnMotion);
+
+	SDL_Quit();
+	return result;
 }

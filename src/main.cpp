@@ -33,11 +33,11 @@ Scrsvr_State::Scrsvr_State(SDL_Renderer *ren, int w, int h, int scaling)
 	int offsetX = 0;
 	for (int i = 0; i < numBuildings; i++) {
 		int bw = rand() % 70 + 60;
-		int bh = rand() % (h / scaling);
+		int bh = rand() % (h / (scaling * 2));
 		int offsetY = (h / scaling) - bh;
 		Building building(rand, offsetX, offsetY, bw, bh, max(rand() % 5, 1), max(rand() % 5, 1), rand() % 10 + 1);
 		buildings.push_back(building);
-		offsetX += bw;
+		offsetX += bw - (rand() % (bw / 2));
 	}
 }
 
