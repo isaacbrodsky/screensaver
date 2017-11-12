@@ -1,0 +1,6 @@
+build/
+
+# Rando windows stuff
+Myscrsvr.dir/
+Myscrsvr.scr.dir/
+Win32/
