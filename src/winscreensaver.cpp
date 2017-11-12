@@ -109,6 +109,8 @@ int RunScreensaver(SDL_Window* win, SDL_Renderer* ren, void* testHwnd) {
 
 	Scrsvr_State state(ren, w, h, 4);
 
+	Uint32 lastTime = SDL_GetTicks();
+
 	bool keepRunning = true;
 	while (keepRunning) {
 #if _WINDOWS
@@ -122,6 +124,7 @@ int RunScreensaver(SDL_Window* win, SDL_Renderer* ren, void* testHwnd) {
 		}
 #endif
 
+		// Handle input/events
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{
@@ -146,12 +149,24 @@ int RunScreensaver(SDL_Window* win, SDL_Renderer* ren, void* testHwnd) {
 			SDL_Log("Event: %u", event.type);
 		}
 
-		state.Update();
+		// Calculate elapsed time
+		Uint32 currentTime = SDL_GetTicks();
+		Uint32 elapsedTime = 0;
+		if (currentTime < lastTime) {
+			// Truncate part of the update
+			elapsedTime = currentTime;
+		}
+		else {
+			elapsedTime = lastTime - currentTime;
+		}
+		lastTime = currentTime;
 
+		// Update
+		state.Update(elapsedTime);
+
+		// Draw
 		SDL_SetRenderTarget(ren, NULL);
-
 		state.Draw(ren);
-
 		SDL_RenderPresent(ren);
 		SDL_Delay(1);
 	}

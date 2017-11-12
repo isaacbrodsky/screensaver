@@ -4,25 +4,8 @@
 #include <list>
 #include "SDL.h"
 
-class Building {
-public: // TODO
-	int offsetX;
-	int offsetY;
-
-	std::mt19937& rand;
-	int w, h;
-	int windowWidth;
-	int windowHeight;
-	int windowOffset;
-
-public:
-	Building(std::mt19937& rand, int offsetX, int offsetY, int w, int h, int windowWidth, int windowHeight, int windowOffset);
-
-	void Update();
-	void Draw(SDL_Renderer *ren) const;
-
-	SDL_Rect ToRect() const;
-};
+#include "building.h"
+#include "star.h"
 
 class Scrsvr_State {
 private:
@@ -35,12 +18,14 @@ private:
 	int numBuildings;
 	std::vector<Building> buildings;
 	int maxStars;
-	std::list<SDL_Point> stars;
+	std::list<Star> stars;
+	Uint32 nextStarTime;
+	Uint32 starLife;
 
 public:
 	Scrsvr_State(SDL_Renderer *ren, int w, int h, int scaling);
 	~Scrsvr_State();
 
-	void Update();
+	void Update(Uint32 elapsedMs);
 	void Draw(SDL_Renderer *ren) const;
 };

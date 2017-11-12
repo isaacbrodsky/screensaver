@@ -4,8 +4,12 @@ project (Screensaver)
 
 set(SOURCE_FILES src/winscreensaver.cpp
     src/main.cpp
+	src/building.cpp
+	src/star.cpp
 	include/winscreensaver.h
-	include/main.h)
+	include/main.h
+	include/building.h
+	include/star.h)
 
 INCLUDE_DIRECTORIES("include")
 
