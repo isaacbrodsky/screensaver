@@ -21,6 +21,17 @@ int main(int argc, char *argv[]) {
 	if (argc > 1) {
 		for (int i = 1; i < argc; i++) {
 			SDL_Log("Got param: %s", argv[i]);
+			if (strcmpi(argv[i], "/debug") == 0) {
+				// Create an application window with the following settings:
+				win = SDL_CreateWindow(
+					"An SDL2 window",                  // window title
+					SDL_WINDOWPOS_UNDEFINED,           // initial x position
+					SDL_WINDOWPOS_UNDEFINED,           // initial y position
+					1024,                              // width, in pixels
+					768,                               // height, in pixels
+					0                                  // flags - see below
+				);
+			}
 			if (strcmpi(argv[i], "/s") == 0) {
 				// Create an application window with the following settings:
 				win = SDL_CreateWindow(
@@ -96,7 +107,7 @@ int RunScreensaver(SDL_Window* win, SDL_Renderer* ren, void* testHwnd) {
 	int i = 0;
 	SDL_Log("Detected window size: %d %d", w, h);
 
-	Scrsvr_State *state = Scrsvr_Init(ren, w, h);
+	Scrsvr_State state(ren, w, h, 4);
 
 	bool keepRunning = true;
 	while (keepRunning) {
@@ -135,17 +146,15 @@ int RunScreensaver(SDL_Window* win, SDL_Renderer* ren, void* testHwnd) {
 			SDL_Log("Event: %u", event.type);
 		}
 
-		Scrsvr_Update(state);
+		state.Update();
 
 		SDL_SetRenderTarget(ren, NULL);
 
-		Scrsvr_Draw(state, ren);
+		state.Draw(ren);
 
 		SDL_RenderPresent(ren);
 		SDL_Delay(1);
 	}
-
-	Scrsvr_Destroy(state);
 
 	return 0;
 }
