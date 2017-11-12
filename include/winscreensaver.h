@@ -1,9 +1,6 @@
 /*
  * Windows screensaver / SDL specific startup
  */
-#ifndef WINSCREENSAVER_H
-#define WINSCREENSAVER_H
+#pragma once
 
-
-
-#endif
+int RunScreensaver(SDL_Window* win, SDL_Renderer* ren, void* testHwnd);
