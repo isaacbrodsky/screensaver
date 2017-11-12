@@ -5,6 +5,7 @@ Window::Window(std::mt19937 rand, int x, int y, int w, int h) : rand(rand), x(x)
 		state.push_back(0);
 	}
 	nextLightTime = rand() % 2000 + 2000;
+	fadeOutTime = rand() % 200 + 100;
 }
 
 void Window::Update(Uint32 elapsedMs) {
@@ -42,6 +43,12 @@ void Window::Draw(SDL_Renderer *ren) const {
 	for (int i = 0; i < w; i++) {
 		for (int j = 0; j < h; j++) {
 			if (state[s] > 0) {
+				float si = 1.0f;
+				if (state[s] < fadeOutTime) {
+					si = state[s] / fadeOutTime;
+				}
+				SDL_SetRenderDrawColor(ren, 0, 255 * si, 255 * si, 0);
+
 				SDL_RenderDrawPoint(ren, x + i, y + j);
 			}
 
@@ -53,8 +60,9 @@ void Window::Draw(SDL_Renderer *ren) const {
 Building::Building(std::mt19937 rand, int ox, int oy, int w, int h, int ww, int wh, int wo)
 	: rand(rand), offsetX(ox), offsetY(oy), w(w), h(h) {
 	windowCount = 0;
+	int xstep = (rand() % ww) + ww + 2;
 	for (int j = 0; j < h; j += wo) {
-		for (int k = 0; k < w; k += ww * 2) {
+		for (int k = 0; k < w; k += xstep) {
 			windowCount++;
 
 			int x = ox + k;

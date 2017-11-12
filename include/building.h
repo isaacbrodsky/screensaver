@@ -13,6 +13,7 @@ public:
 	int h;
 	std::vector<int> state;
 	Uint32 nextLightTime;
+	float fadeOutTime; //ms
 
 public:
 	Window(std::mt19937 rand, int x, int y, int w, int h);
