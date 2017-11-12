@@ -19,5 +19,5 @@ void Star::Draw(SDL_Renderer* ren) const {
 }
 
 bool Star::IsAlive() const {
-	return durationMs == 0;
+	return durationMs != 0;
 }

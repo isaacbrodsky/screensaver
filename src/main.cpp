@@ -25,8 +25,8 @@ Scrsvr_State::Scrsvr_State(SDL_Renderer *ren, int w, int h, int scaling)
 	: w(w / scaling), h(h / scaling), rand(std::chrono::system_clock::now().time_since_epoch().count()) {
 	tex = SDL_CreateTexture(ren, SDL_PIXELFORMAT_RGB888, SDL_TextureAccess::SDL_TEXTUREACCESS_TARGET, w / scaling, h / scaling);
 
-	Uint32 starLife = rand() % 15000 + 2000;
-	nextStarTime = rand() % starLife;
+	starLife = rand() % 30000 + 10000;
+	nextStarTime = rand() % 1000;
 	maxStars = rand() % 100 + 75;
 
 	numBuildings = rand() % 20 + 5;
@@ -58,7 +58,7 @@ void Scrsvr_State::Update(Uint32 elapsedMs) {
 		nextStarTime -= elapsedMs;
 	}
 	else {
-		nextStarTime = rand() % starLife + 2000;
+		nextStarTime = rand() % 1000;
 	}
 
 	for (Building& building : buildings) {

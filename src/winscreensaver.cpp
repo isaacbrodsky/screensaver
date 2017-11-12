@@ -73,12 +73,13 @@ int RunScreensaver(SDL_Window* win, SDL_Renderer* ren, void* testHwnd, bool clos
 		// Calculate elapsed time
 		Uint32 currentTime = SDL_GetTicks();
 		Uint32 elapsedTime = 0;
-		if (currentTime < lastTime) {
+		if (lastTime > currentTime) {
 			// Truncate part of the update
+			SDL_Log("Rollover time");
 			elapsedTime = currentTime;
 		}
 		else {
-			elapsedTime = lastTime - currentTime;
+			elapsedTime = currentTime - lastTime;
 		}
 		lastTime = currentTime;
 
