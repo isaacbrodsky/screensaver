@@ -26,18 +26,25 @@ Scrsvr_State::Scrsvr_State(SDL_Renderer *ren, int w, int h, int scaling)
 	tex = SDL_CreateTexture(ren, SDL_PIXELFORMAT_RGB888, SDL_TextureAccess::SDL_TEXTUREACCESS_TARGET, w / scaling, h / scaling);
 
 	starLife = rand() % 30000 + 10000;
-	nextStarTime = rand() % 1000;
+	nextStarTime = rand() % 500;
 	maxStars = rand() % 100 + 75;
 
-	numBuildings = rand() % 20 + 5;
-	int offsetX = 0;
-	for (int i = 0; i < numBuildings; i++) {
-		int bw = rand() % 70 + 60;
+	int maxHeightBuilding = -1;
+	int buildingIdx = 0;
+	for (int offsetX = 0; offsetX <= w / scaling; ) {
+		int bw = rand() % 50 + 40;
 		int bh = rand() % (h / (scaling * 2));
 		int offsetY = (h / scaling) - bh;
-		Building building(rand, offsetX, offsetY, bw, bh, max(rand() % 5, 1), max(rand() % 5, 1), rand() % 10 + 1);
+		Building building(rand, offsetX, offsetY, bw, bh, max(rand() % 5, 1), max(rand() % 5, 1), rand() % 10 + 1, false);
 		buildings.push_back(building);
 		offsetX += bw - (rand() % (bw / 2));
+		if (maxHeightBuilding == -1 || building.h > buildings[maxHeightBuilding].h) {
+			maxHeightBuilding = buildingIdx;
+		}
+		buildingIdx++;
+	}
+	if (maxHeightBuilding != -1) {
+		buildings[maxHeightBuilding].warningLightEnabled = true;
 	}
 
 	// TODO: uses unknown random state
@@ -58,7 +65,7 @@ void Scrsvr_State::Update(Uint32 elapsedMs) {
 		nextStarTime -= elapsedMs;
 	}
 	else {
-		nextStarTime = rand() % 1000;
+		nextStarTime = rand() % 500;
 	}
 
 	for (Building& building : buildings) {

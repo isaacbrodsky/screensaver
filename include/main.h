@@ -15,7 +15,6 @@ private:
 	std::mt19937 rand;
 
 	// State to draw
-	int numBuildings;
 	std::vector<Building> buildings;
 	int maxStars;
 	std::list<Star> stars;

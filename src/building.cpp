@@ -8,7 +8,7 @@ Window::Window(std::mt19937 rand, int x, int y, int w, int h) : rand(rand), x(x)
 	fadeOutTime = rand() % 200 + 100;
 }
 
-void Window::Update(Uint32 elapsedMs) {
+void Window::Update(Uint32 elapsedMs, bool permitAdd) {
 	for (auto it = state.begin(); it != state.end(); ++it) {
 		if (*it <= elapsedMs) {
 			*it = 0;
@@ -18,13 +18,15 @@ void Window::Update(Uint32 elapsedMs) {
 		}
 	}
 	 
-	if (nextLightTime <= elapsedMs) {
-		int enable = rand() % (w * h);
-		state[enable] += rand() % 5000 + 5000;
-		nextLightTime = rand() % 2000 + 2000;
-	}
-	else {
-		nextLightTime -= elapsedMs;
+	if (permitAdd) {
+		if (nextLightTime <= elapsedMs) {
+			int enable = rand() % (w * h);
+			state[enable] += rand() % 5000 + 5000;
+			nextLightTime = rand() % 2000 + 2000;
+		}
+		else {
+			nextLightTime -= elapsedMs;
+		}
 	}
 }
 
@@ -57,8 +59,39 @@ void Window::Draw(SDL_Renderer *ren) const {
 	}
 }
 
-Building::Building(std::mt19937 rand, int ox, int oy, int w, int h, int ww, int wh, int wo)
-	: rand(rand), offsetX(ox), offsetY(oy), w(w), h(h) {
+WarningLight::WarningLight() {
+
+}
+
+WarningLight::WarningLight(int maxTime, int x, int y, int w, int h) : state(false), maxTime(maxTime), currentTime(maxTime), x(x), y(y), w(w), h(h) {
+
+}
+
+void WarningLight::Update(Uint32 elapsedMs) {
+	if (currentTime <= elapsedMs) {
+		state = !state;
+		currentTime = maxTime;
+	}
+	else {
+		currentTime -= elapsedMs;
+	}
+}
+
+void WarningLight::Draw(SDL_Renderer *ren) const {
+	if (state) {
+		//SDL_SetRenderDrawColor(ren, 255, 0, 0, 0);
+		SDL_SetRenderDrawColor(ren, 255, 255, 0, 0);
+		SDL_Rect rect;
+		rect.x = x;
+		rect.y = y;
+		rect.w = w;
+		rect.h = h;
+		SDL_RenderFillRect(ren, &rect);
+	}
+}
+
+Building::Building(std::mt19937 rand, int ox, int oy, int w, int h, int ww, int wh, int wo, bool warningLightEnabled)
+	: rand(rand), offsetX(ox), offsetY(oy), w(w), h(h), warningLightEnabled(warningLightEnabled) {
 	windowCount = 0;
 	int xstep = (rand() % ww) + ww + 2;
 	for (int j = 0; j < h; j += wo) {
@@ -74,6 +107,12 @@ Building::Building(std::mt19937 rand, int ox, int oy, int w, int h, int ww, int 
 			windows.push_back(w);
 		}
 	}
+
+	int warnW = rand() % 2 + 2;
+	int warnH = warnW;
+	int warnX = ox + rand() % (w - warnW);
+	int warnY = oy - (rand() % warnH) - (warnH / 2);
+	warningLight = WarningLight(rand() % 1000 + 1000, warnX, warnY, warnW, warnH);
 }
 
 SDL_Rect Building::ToRect() const {
@@ -87,7 +126,11 @@ SDL_Rect Building::ToRect() const {
 
 void Building::Update(Uint32 elapsedMs) {
 	for (Window& window : windows) {
-		window.Update(elapsedMs);
+		window.Update(elapsedMs, rand() % 5 == 0);
+	}
+
+	if (warningLightEnabled) {
+		warningLight.Update(elapsedMs);
 	}
 }
 
@@ -105,5 +148,9 @@ void Building::Draw(SDL_Renderer *ren) const {
 	// Draw windows
 	for (const Window& window : windows) {
 		window.Draw(ren);
+	}
+
+	if (warningLightEnabled) {
+		warningLight.Draw(ren);
 	}
 }
