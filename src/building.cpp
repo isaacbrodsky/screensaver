@@ -126,7 +126,7 @@ SDL_Rect Building::ToRect() const {
 
 void Building::Update(Uint32 elapsedMs) {
 	for (Window& window : windows) {
-		window.Update(elapsedMs, rand() % 5 == 0);
+		window.Update(elapsedMs, rand() % 3 == 0);
 	}
 
 	if (warningLightEnabled) {
