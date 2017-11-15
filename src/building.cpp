@@ -6,9 +6,10 @@ Window::Window(std::mt19937 rand, int x, int y, int w, int h) : rand(rand), x(x)
 	}
 	nextLightTime = rand() % 2000 + 2000;
 	fadeOutTime = rand() % 200 + 100;
+	lightBias = rand() % 3 + 2;
 }
 
-void Window::Update(Uint32 elapsedMs, bool permitAdd) {
+void Window::Update(Uint32 elapsedMs, int randomBuildingState) {
 	for (auto it = state.begin(); it != state.end(); ++it) {
 		if (*it <= elapsedMs) {
 			*it = 0;
@@ -18,7 +19,7 @@ void Window::Update(Uint32 elapsedMs, bool permitAdd) {
 		}
 	}
 	 
-	if (permitAdd) {
+	if (randomBuildingState % lightBias == 0) {
 		if (nextLightTime <= elapsedMs) {
 			int enable = rand() % (w * h);
 			state[enable] += rand() % 5000 + 5000;
@@ -126,7 +127,7 @@ SDL_Rect Building::ToRect() const {
 
 void Building::Update(Uint32 elapsedMs) {
 	for (Window& window : windows) {
-		window.Update(elapsedMs, rand() % 3 == 0);
+		window.Update(elapsedMs, rand());
 	}
 
 	if (warningLightEnabled) {

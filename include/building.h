@@ -14,11 +14,12 @@ public:
 	std::vector<int> state;
 	Uint32 nextLightTime;
 	float fadeOutTime; //ms
+	int lightBias;
 
 public:
 	Window(std::mt19937 rand, int x, int y, int w, int h);
 
-	void Update(Uint32 elapsedMs, bool permitAdd);
+	void Update(Uint32 elapsedMs, int randomBuildingState);
 	void Draw(SDL_Renderer *ren) const;
 };
 
