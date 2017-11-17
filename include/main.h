@@ -20,6 +20,7 @@ private:
 	std::list<Star> stars;
 	Uint32 nextStarTime;
 	Uint32 starLife;
+	Uint32 totalTime;
 
 public:
 	Scrsvr_State(SDL_Renderer *ren, int w, int h, int scaling);
