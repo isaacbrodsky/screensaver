@@ -18,7 +18,7 @@ int RunScreensaver(SDL_Window* win, SDL_Renderer* ren, void* testHwnd, bool clos
 	int i = 0;
 	SDL_Log("Detected window size: %d %d", w, h);
 
-	Uint32 nextStateMax = 120'000;
+	Uint32 nextStateMax = 120000;
 	Uint32 nextStateTime = nextStateMax;
 
 	int scaling = 4;
@@ -147,7 +147,7 @@ int main(int argc, char *argv[]) {
 	if (argc > 1) {
 		for (int i = 1; i < argc; i++) {
 			SDL_Log("Got param: %s", argv[i]);
-			if (strcmpi(argv[i], "/debug") == 0) {
+			if (strcmp(argv[i], "/debug") == 0) {
 				// Create an application window with the following settings:
 				win = SDL_CreateWindow(
 					"An SDL2 window",                  // window title

@@ -3,7 +3,7 @@
 #include <random>
 #include "SDL.h"
 
-class Window {
+class BuildingWindow {
 public:
 	std::mt19937 rand;
 
@@ -17,7 +17,7 @@ public:
 	int lightBias;
 
 public:
-	Window(std::mt19937 rand, int x, int y, int w, int h);
+	BuildingWindow(std::mt19937 rand, int x, int y, int w, int h);
 
 	void Update(Uint32 elapsedMs, int randomBuildingState);
 	void Draw(SDL_Renderer *ren) const;
@@ -51,14 +51,14 @@ public: // TODO
 	int h;
 
 	int windowCount;
-	std::vector<Window> windows;
+	std::vector<BuildingWindow> windows;
 
 	bool warningLightEnabled;
 	WarningLight warningLight;
 
 public:
 	Building(std::mt19937 rand, int offsetX, int offsetY, int w, int h, int windowWidth, int windowHeight, int windowOffset, bool warningLightEnabled);
-	
+
 	void Update(Uint32 elapsedMs);
 	void Draw(SDL_Renderer *ren) const;
 

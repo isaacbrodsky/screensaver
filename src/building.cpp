@@ -1,6 +1,6 @@
 #include "building.h"
 
-Window::Window(std::mt19937 rand, int x, int y, int w, int h) : rand(rand), x(x), y(y), w(w), h(h) {
+BuildingWindow::BuildingWindow(std::mt19937 rand, int x, int y, int w, int h) : rand(rand), x(x), y(y), w(w), h(h) {
 	for (int i = 0; i < w * h; i++) {
 		state.push_back(0);
 	}
@@ -9,7 +9,7 @@ Window::Window(std::mt19937 rand, int x, int y, int w, int h) : rand(rand), x(x)
 	lightBias = rand() % 3 + 2;
 }
 
-void Window::Update(Uint32 elapsedMs, int randomBuildingState) {
+void BuildingWindow::Update(Uint32 elapsedMs, int randomBuildingState) {
 	for (auto it = state.begin(); it != state.end(); ++it) {
 		if (*it <= elapsedMs) {
 			*it = 0;
@@ -18,7 +18,7 @@ void Window::Update(Uint32 elapsedMs, int randomBuildingState) {
 			*it -= elapsedMs;
 		}
 	}
-	 
+
 	if (randomBuildingState % lightBias == 0) {
 		if (nextLightTime <= elapsedMs) {
 			int enable = rand() % (w * h);
@@ -31,7 +31,7 @@ void Window::Update(Uint32 elapsedMs, int randomBuildingState) {
 	}
 }
 
-void Window::Draw(SDL_Renderer *ren) const {
+void BuildingWindow::Draw(SDL_Renderer *ren) const {
 	// Draw outline
 	SDL_SetRenderDrawColor(ren, 0, 32, 32, 0);
 	SDL_Rect rect;
@@ -104,7 +104,7 @@ Building::Building(std::mt19937 rand, int ox, int oy, int w, int h, int ww, int 
 
 			// Advance random state for each window
 			rand();
-			Window w(rand, x, y, ww, wh);
+			BuildingWindow w(rand, x, y, ww, wh);
 			windows.push_back(w);
 		}
 	}
@@ -126,7 +126,7 @@ SDL_Rect Building::ToRect() const {
 }
 
 void Building::Update(Uint32 elapsedMs) {
-	for (Window& window : windows) {
+	for (BuildingWindow& window : windows) {
 		window.Update(elapsedMs, rand());
 	}
 
@@ -147,7 +147,7 @@ void Building::Draw(SDL_Renderer *ren) const {
 	//SDL_RenderDrawRect(ren, &outline);
 
 	// Draw windows
-	for (const Window& window : windows) {
+	for (const BuildingWindow& window : windows) {
 		window.Draw(ren);
 	}
 
