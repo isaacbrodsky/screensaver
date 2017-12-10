@@ -15,7 +15,7 @@ INCLUDE_DIRECTORIES("include")
 
 add_executable(Myscrsvr ${SOURCE_FILES})
 
-if (win32)
+if (WIN32)
     # Setup SDL
     INCLUDE_DIRECTORIES("E:/Dev/SDL2-2.0.4/include")
     TARGET_LINK_LIBRARIES(Myscrsvr "E:/Dev/SDL2-2.0.4/VisualC/Win32/Debug/SDL2.lib")
