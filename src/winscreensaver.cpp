@@ -214,10 +214,19 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-	SDL_Renderer *ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	SDL_Renderer *ren = SDL_CreateRenderer(win, -1, 0);
 	if (ren == nullptr) {
 		SDL_DestroyWindow(win);
 		std::cout << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
+
+		int num = SDL_GetNumRenderDrivers();
+		std::cout << "Render drivers: " << num << std::endl;
+		for (int i = 0; i < num; i++) {
+			SDL_RendererInfo info;
+			SDL_GetRenderDriverInfo(i, &info);
+			std::cout << i << ": " << info.name << std::endl;
+		}
+
 		SDL_Quit();
 		return 1;
 	}

@@ -4,3 +4,4 @@ build/
 Myscrsvr.dir/
 Myscrsvr.scr.dir/
 Win32/
+.vs
