@@ -9,6 +9,7 @@ private:
 	int scaling;
     int w, h;
     std::vector<SDL_Texture*> texes;
+    std::vector<SDL_Texture*> bgtexes;
 
 public:
     CharRender(SDL_Renderer *ren, int scaling);

@@ -50,10 +50,10 @@ void Scrsvr_State::Draw(SDL_Renderer *ren, const CharRender *charRender) const {
 	SDL_SetRenderDrawColor(ren, 0, 0, 0, 0);
 	SDL_RenderClear(ren);
 
-    charRender->Draw(ren, 0, 0, 'A', 0xF);
-    charRender->Draw(ren, 1, 0, 'B', 0xE);
-    charRender->Draw(ren, 2, 0, 'C', 0xD);
-    charRender->Draw(ren, 0, 1, "Hello", 0x10);
+    charRender->Draw(ren, 0, 0, 'A', 0x0F);
+    charRender->Draw(ren, 1, 0, 'B', 0x0E);
+    charRender->Draw(ren, 2, 0, 'C', 0x0D);
+    charRender->Draw(ren, 0, 1, "Hello", 0x40);
 
 	SDL_SetRenderTarget(ren, NULL);
 	SDL_RenderCopy(ren, tex, NULL, NULL);
