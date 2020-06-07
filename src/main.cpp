@@ -3,7 +3,7 @@
 #include "SDL.h"
 #include "main.h"
 
-const float FRAME_TIME = 1000.0f;
+const Uint32 FRAME_TIME = 200;
 
 int min(int a, int b) {
 	if (a > b) {
@@ -45,8 +45,6 @@ void Scrsvr_State::Update(Uint32 elapsedMs) {
     if (totalTime > FRAME_TIME) {
         totalTime -= FRAME_TIME;
         frameNumber++;
-
-        frameNumber = rand();
     }
 }
 
@@ -56,13 +54,19 @@ void Scrsvr_State::Draw(SDL_Renderer *ren, const CharRender *charRender) const {
 	SDL_SetRenderDrawColor(ren, 0, 0, 0, 0);
 	SDL_RenderClear(ren);
 
+    // Only red/gray backgrounds, only low intensity foreground
+    int bc = (dist(0, 0, w, h) + (frameNumber / 2)) & 0xC0;
     for (int i = 0; i < w; i++) {
         for (int j = 0; j < h; j++) {
-            int n = ((i + (j * w)) + frameNumber) % 256;
-            int c = (dist(i, j, w, h) + frameNumber) % 256;
+            int n = ((i + (j * w)) + frameNumber + (j * frameNumber)) % 256;
+
+            int c = bc | ((i + (j * w) + (frameNumber / 4)) & 0x07);
             charRender->Draw(ren, i, j, n, c);
         }
     }
+
+    charRender->Clear(ren, (frameNumber % w) - 1, frameNumber % h, 7, 0x10);
+    charRender->Draw(ren, frameNumber % w, frameNumber % h, "Hello", 0x0F);
 
 	SDL_SetRenderTarget(ren, NULL);
 	SDL_RenderCopy(ren, tex, NULL, NULL);

@@ -80,6 +80,15 @@ CharRender::~CharRender() {
     }
 }
 
+void CharRender::Clear(SDL_Renderer *ren, int x, int y, int count, int col) const {
+    SDL_Rect rect = { x * w * scaling, y * h * scaling, w * scaling * count, h * scaling };
+
+    auto bgcol = cols[(col & 0xF0) >> 4];
+
+    SDL_SetRenderDrawColor(ren, bgcol.r, bgcol.g, bgcol.b, 0);
+    SDL_RenderFillRect(ren, &rect);
+}
+
 void CharRender::Draw(SDL_Renderer *ren, int x, int y, int ch, int col) const {
     SDL_Rect rect = { x * w * scaling, y * h * scaling, w * scaling, h * scaling };
 

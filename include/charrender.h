@@ -15,6 +15,7 @@ public:
     CharRender(SDL_Renderer *ren, int scaling);
 	~CharRender();
 
+    void Clear(SDL_Renderer *ren, int x, int y, int count, int col = 0x00) const;
     void Draw(SDL_Renderer *ren, int x, int y, int ch, int col) const;
     void Draw(SDL_Renderer *ren, int x, int y, std::string str, int col) const;
 
