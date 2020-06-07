@@ -3,7 +3,7 @@
 #include "SDL.h"
 #include "main.h"
 
-const float FRAME_TIME = 100.0f;
+const float FRAME_TIME = 1000.0f;
 
 int min(int a, int b) {
 	if (a > b) {
@@ -21,6 +21,10 @@ int max(int a, int b) {
 	else {
 		return b;
 	}
+}
+
+int dist(int x1, int y1, int x2, int y2) {
+    return abs(x2 - x1) + abs(y2 - y1);
 }
 
 Scrsvr_State::Scrsvr_State(SDL_Renderer *ren, int w, int h, int scaling, int wScale, int hScale) 
@@ -41,6 +45,8 @@ void Scrsvr_State::Update(Uint32 elapsedMs) {
     if (totalTime > FRAME_TIME) {
         totalTime -= FRAME_TIME;
         frameNumber++;
+
+        frameNumber = rand();
     }
 }
 
@@ -52,8 +58,9 @@ void Scrsvr_State::Draw(SDL_Renderer *ren, const CharRender *charRender) const {
 
     for (int i = 0; i < w; i++) {
         for (int j = 0; j < h; j++) {
-            int n = (i + (j * w)) + frameNumber;
-            charRender->Draw(ren, i, j, n % 256, n % 256);
+            int n = ((i + (j * w)) + frameNumber) % 256;
+            int c = (dist(i, j, w, h) + frameNumber) % 256;
+            charRender->Draw(ren, i, j, n, c);
         }
     }
 
