@@ -13,10 +13,8 @@ private:
 	std::mt19937 rand;
 
 	// State to draw
-	int maxStars;
-	Uint32 nextStarTime;
-	Uint32 starLife;
 	Uint32 totalTime;
+    Uint32 frameNumber;
 
 public:
 	Scrsvr_State(SDL_Renderer *ren, int w, int h, int scaling, int wScale, int hScale);
