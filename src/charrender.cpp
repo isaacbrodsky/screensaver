@@ -1,3 +1,4 @@
+#include <iostream>
 #include <string>
 #include "SDL.h"
 #include "SDL_image.h"
@@ -38,7 +39,7 @@ CharRender::CharRender(SDL_Renderer *ren, int scaling)
         string path = "char/" + to_string(i) + ".png";
         auto loadedSurface = IMG_Load(path.c_str());
         if (loadedSurface == NULL) {
-            printf("Unable to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError());
+            std::cout << "Unable to load: " << path << " Error: " << IMG_GetError() << std::endl;
             throw std::exception("couldn't load surface");
         }
 
@@ -46,7 +47,7 @@ CharRender::CharRender(SDL_Renderer *ren, int scaling)
 
         auto tex = SDL_CreateTextureFromSurface(ren, loadedSurface);
         if (tex == NULL) {
-            printf("Unable to optimize image %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
+            std::cout << "Unable to create fg texture: " << path << " Error: " << SDL_GetError() << std::endl;
             throw std::exception("couldn't load texture");
         }
 
@@ -56,7 +57,7 @@ CharRender::CharRender(SDL_Renderer *ren, int scaling)
 
         tex = SDL_CreateTextureFromSurface(ren, loadedSurface);
         if (tex == NULL) {
-            printf("Unable to optimize bg image %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
+            std::cout << "Unable to create bg texture: " << path << " Error: " << SDL_GetError() << std::endl;
             throw std::exception("couldn't load bg texture");
         }
 
