@@ -1,4 +1,4 @@
-#include <algorithm>
+#include <string>
 #include <chrono>
 #include "SDL.h"
 #include "main.h"
@@ -65,8 +65,9 @@ void Scrsvr_State::Draw(SDL_Renderer *ren, const CharRender *charRender) const {
         }
     }
 
-    charRender->Clear(ren, (frameNumber % w) - 1, frameNumber % h, 7, 0x10);
-    charRender->Draw(ren, frameNumber % w, frameNumber % h, "Hello", 0x0F);
+    std::string msg = std::string(SDL_GetPlatform());
+    charRender->Clear(ren, (frameNumber % w) - 1, frameNumber % h, msg.size() + 2, 0x10);
+    charRender->Draw(ren, frameNumber % w, frameNumber % h, msg, 0x0F);
 
 	SDL_SetRenderTarget(ren, NULL);
 	SDL_RenderCopy(ren, tex, NULL, NULL);
