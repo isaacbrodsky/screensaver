@@ -3,6 +3,7 @@
 #include <random>
 #include <list>
 #include "SDL.h"
+#include "charrender.h"
 
 class Scrsvr_State {
 private:
@@ -22,5 +23,5 @@ public:
 	~Scrsvr_State();
 
 	void Update(Uint32 elapsedMs);
-	void Draw(SDL_Renderer *ren) const;
+	void Draw(SDL_Renderer *ren, const CharRender *charRender) const;
 };

@@ -4,6 +4,7 @@
 #include <iostream>
 #include "SDL.h"
 #include "SDL_syswm.h"
+#include "SDL_image.h"
 #include "winscreensaver.h"
 #include "main.h"
 
@@ -22,6 +23,9 @@ int RunScreensaver(SDL_Window* win, SDL_Renderer* ren, void* testHwnd, bool clos
 	Uint32 nextStateTime = nextStateMax;
 
 	int scaling = 4;
+
+    CharRender charRender(ren, scaling);
+
 	Scrsvr_State *state = new Scrsvr_State(ren, w, h, scaling);
 
 	Uint32 lastTime = SDL_GetTicks();
@@ -103,7 +107,7 @@ int RunScreensaver(SDL_Window* win, SDL_Renderer* ren, void* testHwnd, bool clos
 
 		// Draw
 		SDL_SetRenderTarget(ren, NULL);
-		state->Draw(ren);
+		state->Draw(ren, &charRender);
 		SDL_RenderPresent(ren);
 
 		Uint32 frameEnd = SDL_GetTicks();
@@ -134,6 +138,11 @@ int main(int argc, char *argv[]) {
 		std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
 		return 1;
 	}
+
+    if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
+        std::cout << "IMG_Init Error: " << IMG_GetError() << std::endl;
+        return 1;
+    }
 
 #if _WINDOWS
 	// Receive window manager events so we can close from preview
