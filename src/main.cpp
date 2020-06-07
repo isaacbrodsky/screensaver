@@ -21,9 +21,9 @@ int max(int a, int b) {
 	}
 }
 
-Scrsvr_State::Scrsvr_State(SDL_Renderer *ren, int w, int h, int scaling) 
+Scrsvr_State::Scrsvr_State(SDL_Renderer *ren, int w, int h, int scaling, int wScale, int hScale) 
 	: w(w / scaling), h(h / scaling), rand(std::chrono::system_clock::now().time_since_epoch().count()), totalTime(0) {
-	tex = SDL_CreateTexture(ren, SDL_PIXELFORMAT_RGB888, SDL_TextureAccess::SDL_TEXTUREACCESS_TARGET, w / scaling, h / scaling);
+	tex = SDL_CreateTexture(ren, SDL_PIXELFORMAT_RGB888, SDL_TextureAccess::SDL_TEXTUREACCESS_TARGET, w * wScale, h * hScale);
 
 	starLife = rand() % 30000 + 10000;
 	nextStarTime = rand() % 500;
@@ -50,10 +50,12 @@ void Scrsvr_State::Draw(SDL_Renderer *ren, const CharRender *charRender) const {
 	SDL_SetRenderDrawColor(ren, 0, 0, 0, 0);
 	SDL_RenderClear(ren);
 
-    charRender->Draw(ren, 0, 0, 'A', 0x0F);
-    charRender->Draw(ren, 1, 0, 'B', 0x0E);
-    charRender->Draw(ren, 2, 0, 'C', 0x0D);
-    charRender->Draw(ren, 0, 1, "Hello", 0x40);
+    for (int i = 0; i < w; i++) {
+        for (int j = 0; j < h; j++) {
+            int n = (i + (j * w));
+            charRender->Draw(ren, i, j, n % 256, n % 256);
+        }
+    }
 
 	SDL_SetRenderTarget(ren, NULL);
 	SDL_RenderCopy(ren, tex, NULL, NULL);

@@ -22,11 +22,13 @@ int RunScreensaver(SDL_Window* win, SDL_Renderer* ren, void* testHwnd, bool clos
 	Uint32 nextStateMax = 120000;
 	Uint32 nextStateTime = nextStateMax;
 
-	int scaling = 4;
+	int scaling = 2;
 
     CharRender charRender(ren, scaling);
+    w /= charRender.GetWidth();
+    h /= charRender.GetHeight();
 
-	Scrsvr_State *state = new Scrsvr_State(ren, w, h, scaling);
+	Scrsvr_State *state = new Scrsvr_State(ren, w, h, scaling, charRender.GetWidth(), charRender.GetHeight());
 
 	Uint32 lastTime = SDL_GetTicks();
 
@@ -95,7 +97,7 @@ int RunScreensaver(SDL_Window* win, SDL_Renderer* ren, void* testHwnd, bool clos
 		// Check if a new state is needed
 		if (nextStateTime <= elapsedTime) {
 			delete state;
-			state = new Scrsvr_State(ren, w, h, scaling);
+			state = new Scrsvr_State(ren, w, h, scaling, charRender.GetWidth(), charRender.GetHeight());
 			nextStateTime = nextStateMax;
 		}
 		else {

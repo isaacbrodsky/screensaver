@@ -102,3 +102,11 @@ void CharRender::Draw(SDL_Renderer *ren, int x, int y, string str, int col) cons
         Draw(ren, x++, y, ch, col);
     }
 }
+
+int CharRender::GetWidth() const {
+    return w;
+}
+
+int CharRender::GetHeight() const {
+    return h;
+}

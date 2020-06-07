@@ -19,7 +19,7 @@ private:
 	Uint32 totalTime;
 
 public:
-	Scrsvr_State(SDL_Renderer *ren, int w, int h, int scaling);
+	Scrsvr_State(SDL_Renderer *ren, int w, int h, int scaling, int wScale, int hScale);
 	~Scrsvr_State();
 
 	void Update(Uint32 elapsedMs);

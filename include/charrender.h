@@ -17,4 +17,7 @@ public:
 
     void Draw(SDL_Renderer *ren, int x, int y, int ch, int col) const;
     void Draw(SDL_Renderer *ren, int x, int y, std::string str, int col) const;
+
+    int GetWidth() const;
+    int GetHeight() const;
 };
