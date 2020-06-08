@@ -4,6 +4,11 @@
 #include "SDL_image.h"
 #include "charrender.h"
 
+#ifdef _WIN32 // for locating the char png files
+#include <Windows.h>
+#include <shlwapi.h>
+#endif
+
 using namespace std;
 
 SDL_Color fgcols[] = { {255, 255, 255, 255}, {0, 0, 0, 0} };
@@ -36,7 +41,17 @@ CharRender::CharRender(SDL_Renderer *ren, int scaling)
     SDL_SetPaletteColors(bgpal, bgcols, 0, 2);
 
 	for (int i = 0; i < 256; i++) {
-        string path = "char/" + to_string(i) + ".png";
+        string basePath;
+#if _WIN32
+#define FILENAME_SIZE 250
+        char filename[FILENAME_SIZE + 1];
+        GetModuleFileNameA(NULL, filename, FILENAME_SIZE);
+        PathRemoveFileSpecA(filename);
+        basePath = filename;
+        basePath += "/../";
+#endif
+
+        string path = basePath + "char/" + to_string(i) + ".png";
         auto loadedSurface = IMG_Load(path.c_str());
         if (loadedSurface == NULL) {
             std::cout << "Unable to load: " << path << " Error: " << IMG_GetError() << std::endl;

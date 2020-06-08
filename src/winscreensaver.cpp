@@ -13,7 +13,6 @@ int RunScreensaver(SDL_Window* win, SDL_Renderer* ren, void* testHwnd, bool clos
 	SDL_assert(sizeof(void*) == sizeof(HWND));
 #endif
 
-	bool mouseMotionSeen = false;
 	int w, h;
 	SDL_GetWindowSize(win, &w, &h);
 	int i = 0;
@@ -60,10 +59,10 @@ int RunScreensaver(SDL_Window* win, SDL_Renderer* ren, void* testHwnd, bool clos
 				keepRunning = false;
 				break;
 			case SDL_MOUSEMOTION:
-				if (mouseMotionSeen && closeOnMotion) {
+                SDL_MouseMotionEvent motion = event.motion;
+				if ((motion.xrel != 0 || motion.yrel != 0) && closeOnMotion) {
 					keepRunning = false;
 				}
-				mouseMotionSeen = true;
 				break;
 			case SDL_WINDOWEVENT_CLOSE:
 				keepRunning = false;
@@ -209,8 +208,8 @@ int main(int argc, char *argv[]) {
 			"An SDL2 window",                  // window title
 			SDL_WINDOWPOS_UNDEFINED,           // initial x position
 			SDL_WINDOWPOS_UNDEFINED,           // initial y position
-			640,                               // width, in pixels
-			480,                               // height, in pixels
+			1920,                               // width, in pixels
+			1080,                               // height, in pixels
 			SDL_WINDOW_FULLSCREEN_DESKTOP      // flags - see below
 		);
 		// Running as a real screensaver

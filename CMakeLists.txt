@@ -23,4 +23,5 @@ if (WIN32)
     # Name the screensaver correctly
     SET(CMAKE_EXECUTABLE_SUFFIX "")
     SET_TARGET_PROPERTIES(Myscrsvr2 PROPERTIES OUTPUT_NAME Myscrsvr2.scr)
+	target_link_libraries(Myscrsvr2 PRIVATE Shlwapi)
 endif()
