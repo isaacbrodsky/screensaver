@@ -3,7 +3,7 @@
 #include "SDL.h"
 #include "main.h"
 
-const Uint32 FRAME_TIME = 200;
+const Uint32 FRAME_TIME = 160;
 
 int min(int a, int b) {
 	if (a > b) {
@@ -55,12 +55,13 @@ void Scrsvr_State::Draw(SDL_Renderer *ren, const CharRender *charRender) const {
 	SDL_RenderClear(ren);
 
     // Only red/gray backgrounds, only low intensity foreground
-    int bc = (dist(0, 0, w, h) + (frameNumber / 2)) & 0xC0;
+    int bc = (dist(0, 0, w, h) + (frameNumber / 2)) & (0xE0);
     for (int i = 0; i < w; i++) {
         for (int j = 0; j < h; j++) {
             int n = ((i + (j * w)) + frameNumber + (j * frameNumber)) % 256;
 
-            int c = bc | ((i + (j * w) + (frameNumber / 4)) & 0x07);
+            int bias = (bc >> 4) + 1;
+            int c = bc | ((i + (j * w) + (frameNumber / 4) + (j / bias)) & 0x07);
             charRender->Draw(ren, i, j, n, c);
         }
     }
