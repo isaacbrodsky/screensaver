@@ -21,7 +21,7 @@ int RunScreensaver(SDL_Window* win, SDL_Renderer* ren, void* testHwnd, bool clos
 	Uint32 nextStateMax = 120000;
 	Uint32 nextStateTime = nextStateMax;
 
-	int scaling = 2;
+	int scaling = 3;
 
     CharRender charRender(ren, scaling);
     w /= charRender.GetWidth();

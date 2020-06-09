@@ -61,7 +61,7 @@ void Scrsvr_State::Draw(SDL_Renderer *ren, const CharRender *charRender) const {
             int n = ((i + (j * w)) + frameNumber + (j * frameNumber)) % 256;
 
             int bias = (bc >> 4) + 1;
-            int c = bc | ((i + (j * w) + (frameNumber / 4) + (j / bias)) & 0x07);
+            int c = bc | ((i + (j * w) + ((j * frameNumber) / bias)) & 0x07);
             charRender->Draw(ren, i, j, n, c);
         }
     }
