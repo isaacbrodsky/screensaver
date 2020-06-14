@@ -55,15 +55,25 @@ void Scrsvr_State::Draw(SDL_Renderer *ren, const CharRender *charRender) const {
 	SDL_RenderClear(ren);
 
     // Only red/gray backgrounds, only low intensity foreground
+    /*
     int bc = (dist(0, 0, w, h) + (frameNumber / 2)) & (0xE0);
     for (int i = 0; i < w; i++) {
         for (int j = 0; j < h; j++) {
-            int n = ((i + (j * w)) + frameNumber + (j * frameNumber)) % 256;
+            int n = ((i + (j * w)) + frameNumber + (j * frameNumber)) % 5 + 176;
+            if (n == 176 + 3)
+                n = 219;
+            if (n == 176 + 4)
+                n = 0;
 
             int bias = (bc >> 4) + 1;
-            int c = bc | ((i + (j * w) + ((j * frameNumber) / bias)) & 0x07);
+            int c = bc | 0x07;//(n & 0x07);//((i + (j * w) + ((j * frameNumber) / bias)) & 0x07);
             charRender->Draw(ren, i, j, n, c);
         }
+    }
+    */
+
+    for (int i = 0; i < frameNumber % 256; i++) {
+        charRender->Draw(ren, 5 + (i % 16), 2 + (i / 16), i, ((frameNumber >> 4) & 0x0F));
     }
 
     std::string msg = std::string(SDL_GetPlatform());
