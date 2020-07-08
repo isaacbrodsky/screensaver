@@ -18,7 +18,7 @@ int RunScreensaver(SDL_Window* win, SDL_Renderer* ren, void* testHwnd, bool clos
 	int i = 0;
 	SDL_Log("Detected window size: %d %d", w, h);
 
-	Uint32 nextStateMax = 120000;
+	Uint32 nextStateMax = 12'000'000;
 	Uint32 nextStateTime = nextStateMax;
 
 	int scaling = 3;

@@ -34,10 +34,24 @@ Scrsvr_State::Scrsvr_State(SDL_Renderer *ren, int w, int h, int scaling, int wSc
     totalTime(0),
     frameNumber(0) {
 	tex = SDL_CreateTexture(ren, SDL_PIXELFORMAT_RGB888, SDL_TextureAccess::SDL_TEXTUREACCESS_TARGET, w * wScale, h * hScale);
+    RandomizeStart();
+    chars.resize(w * h);
 }
 
 Scrsvr_State::~Scrsvr_State() {
 	SDL_DestroyTexture(tex);
+}
+
+void Scrsvr_State::RandomizeStart() {
+    startX = rand() % w;
+    startY = rand() % h;
+    currBlockMode = rand();
+    currBlockOffset = rand();
+    msg = " " + std::string(SDL_GetPlatform()) + " ";
+    msgX = rand() % (w - msg.size() - 2);
+    msgY = rand() % h;
+    msgDeltaX = rand() & 1 ? 1 : -1;
+    msgDeltaY = rand() & 1 ? 1 : -1;
 }
 
 void Scrsvr_State::Update(Uint32 elapsedMs) {
@@ -45,6 +59,70 @@ void Scrsvr_State::Update(Uint32 elapsedMs) {
     if (totalTime > FRAME_TIME) {
         totalTime -= FRAME_TIME;
         frameNumber++;
+        if (frameNumber >= 256) {
+            frameNumber = 0;
+            RandomizeStart();
+        }
+
+        int ax = startX;
+        int ay = startY;
+        if (currBlockMode & 1) {
+            ax += frameNumber % 16;
+        } else {
+            ay += frameNumber * 16;
+        }
+        if (currBlockMode & 2) {
+            ay += frameNumber / 16;
+        } else {
+            ax += frameNumber * 16;
+        }
+        while (ax >= w) {
+            ax -= w;
+        }
+        while (ay >= h) {
+            ay -= h;
+        }
+        int nextChar = rand() & 0xFFFF;
+        int nextOffset = frameNumber;
+        if (currBlockMode & 32) {
+            // Offset using a random seed too
+            nextOffset += currBlockOffset;
+        }
+        nextOffset &= 0xFF;
+        if (currBlockMode & 4) {
+            nextChar = (nextChar & 0xF00F) | (nextOffset << 4);
+        }
+        if (currBlockMode & 8) {
+            nextChar = (nextChar & 0xFF) | (nextOffset << 8);
+        }
+        if (currBlockMode & 16) {
+            nextChar = (nextChar & 0xFF00) | nextOffset;
+        }
+        if (currBlockMode & 64) {
+            // Only low intensity colors
+            nextChar &= 0x7FFF;
+        }
+        chars[ax + ay * w] = nextChar;
+
+        // advance message
+        msgX += msgDeltaX;
+        msgY += msgDeltaY;
+        if (msgX + msg.size() >= w || msgX <= 0) {
+            msgX = max(0, min(msgX, w - msg.size()));
+            msgDeltaX = -msgDeltaX;
+        }
+        if (msgY + 1 >= h || msgY <= 0) {
+            msgY = max(0, min(msgY, h - 1));
+            msgDeltaY = -msgDeltaY;
+        }
+    }
+}
+
+char toHexChar(Uint32 i) {
+    if (i < 10) {
+        return '0' + i;
+    } else {
+        return 'A' + (i - 10);
     }
 }
 
@@ -54,31 +132,22 @@ void Scrsvr_State::Draw(SDL_Renderer *ren, const CharRender *charRender) const {
 	SDL_SetRenderDrawColor(ren, 0, 0, 0, 0);
 	SDL_RenderClear(ren);
 
-    // Only red/gray backgrounds, only low intensity foreground
-    /*
-    int bc = (dist(0, 0, w, h) + (frameNumber / 2)) & (0xE0);
     for (int i = 0; i < w; i++) {
         for (int j = 0; j < h; j++) {
-            int n = ((i + (j * w)) + frameNumber + (j * frameNumber)) % 5 + 176;
-            if (n == 176 + 3)
-                n = 219;
-            if (n == 176 + 4)
-                n = 0;
-
-            int bias = (bc >> 4) + 1;
-            int c = bc | 0x07;//(n & 0x07);//((i + (j * w) + ((j * frameNumber) / bias)) & 0x07);
-            charRender->Draw(ren, i, j, n, c);
+            int idx = i + j * w;
+            auto toDraw = chars[idx];
+            charRender->Draw(ren, i, j, toDraw & 0xFF, ((toDraw >> 8) & 0xFF));
         }
     }
-    */
 
-    for (int i = 0; i < frameNumber % 256; i++) {
-        charRender->Draw(ren, 5 + (i % 16), 2 + (i / 16), i, ((frameNumber >> 4) & 0x0F));
-    }
+    charRender->Clear(ren, msgX, msgY, msg.size(), 0x10);
+    charRender->Draw(ren, msgX, msgY, msg, 0x0F);
 
-    std::string msg = std::string(SDL_GetPlatform());
-    charRender->Clear(ren, (frameNumber % w) - 1, frameNumber % h, msg.size() + 2, 0x10);
-    charRender->Draw(ren, frameNumber % w, frameNumber % h, msg, 0x0F);
+    /*int z = currBlockMode;
+    for (int i = 0; i < 16; i++) {
+        charRender->Draw(ren, 15 - i, 0, (z & 1) ? '1' : '0', i % 4 == 0 ? 0x0E : 0x0F);
+        z = z >> 1;
+    }*/
 
 	SDL_SetRenderTarget(ren, NULL);
 	SDL_RenderCopy(ren, tex, NULL, NULL);
