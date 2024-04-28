@@ -1,5 +1,7 @@
 cmake_minimum_required (VERSION 2.8.11)
 
+#set(CMAKE_GENERATOR_PLATFORM "x86")
+
 project (CodePageScreensaver)
 
 set(SOURCE_FILES src/winscreensaver.cpp
