@@ -1,3 +1,7 @@
+# CodePageScreensaver
+
+A screensaver.
+
 # Development
 
 ## VCPKG requirements
@@ -14,3 +18,6 @@ zlib:x86-windows                                   1.2.11-6         A compressio
 cmake -S . -B build2 -DCMAKE_TOOLCHAIN_FILE=$VCPKG_DIR/scripts/buildsystems/vcpkg.cmake -A Win32
 ```
 
+# Copyright
+
+Copyright 2024 Isaac Brodsky. Licensed under the [GNU General Public License, Version 3](./LICENSE.txt).

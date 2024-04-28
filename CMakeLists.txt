@@ -7,9 +7,13 @@ project (CodePageScreensaver)
 set(SOURCE_FILES src/winscreensaver.cpp
     src/main.cpp
 	src/charrender.cpp
+	src/text.cpp
+	src/random.cpp
 	include/winscreensaver.h
 	include/main.h
-	include/charrender.h)
+	include/charrender.h
+	include/text.h
+	include/random.h)
 
 INCLUDE_DIRECTORIES("include")
 
